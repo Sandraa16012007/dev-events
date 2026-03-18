@@ -107,12 +107,11 @@ export async function GET() {
         );
     }
     catch (e){
+        console.error("Failed to fetch events:", e);
         return NextResponse.json(
             {
-                message: "Failed to fetch events",
-                error: e
+                message: "Failed to fetch events"
             },
             { status: 500 }
-        );
-    }
+        );    }
 }

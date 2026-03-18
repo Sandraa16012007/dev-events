@@ -68,12 +68,11 @@ export async function GET(
                 );
             }
 
-            // Return generic error with error message
+            // Return generic error without exposing internal details
             return NextResponse.json(
-                { message: 'Failed to fetch events', error: error.message },
+                { message: 'Failed to fetch event' },
                 { status: 500 }
-            );
-        }
+            );        }
 
         // Handle unknown errors
         return NextResponse.json(

@@ -3,9 +3,20 @@ import ExploreBtn from '@/components/ExploreBtn'
 import { IEvent } from '@/database/event.model';
 
 const page = async () => {
-
-  const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/events`, { next: { revalidate: 60 } });
-  const {events} = await response.json();
+  let events = [];
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/events`, { 
+      next: { revalidate: 60 } 
+    });
+    if (!response.ok) {
+      console.error('Failed to fetch events:', response.status);
+    } else {
+      const data = await response.json();
+      events = data.events ?? [];
+    }
+  } catch (error) {
+    console.error('Error fetching events:', error);
+  }
 
   return (
     <section>
