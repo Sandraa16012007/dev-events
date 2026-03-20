@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
                 { message: "Image size must be less than 5MB" },
                 { status: 400 }
             );
-        }        delete event.image;
+        } delete event.image;
 
         let tags = JSON.parse(formData.get('tags') as string)
         let agenda = JSON.parse(formData.get('agenda') as string)
@@ -87,7 +87,7 @@ export async function POST(req: NextRequest) {
         event.image = uploadResult.secure_url;
 
         // ✅ Save to DB
-        const createdEvent = await Event.create({ ...event, tags: tags, agenda: agenda});
+        const createdEvent = await Event.create({ ...event, tags: tags, agenda: agenda });
 
         return NextResponse.json(
             {
@@ -107,11 +107,10 @@ export async function POST(req: NextRequest) {
             { status: 500 }
         );
     }
-    }
 }
 
 export async function GET() {
-    try { 
+    try {
         await connectDB();
         const events = await Event.find().sort({ createdAt: -1 });
         return NextResponse.json(
@@ -122,12 +121,13 @@ export async function GET() {
             { status: 200 }
         );
     }
-    catch (e){
+    catch (e) {
         console.error("Failed to fetch events:", e);
         return NextResponse.json(
             {
                 message: "Failed to fetch events"
             },
             { status: 500 }
-        );    }
+        );
+    }
 }

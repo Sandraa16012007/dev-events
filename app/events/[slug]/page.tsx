@@ -5,14 +5,19 @@ import BookEvent from '@/components/BookEvent';
 import { IEvent } from '@/database/event.model';
 import { getSimilarEventsBySlug } from '@/lib/actions/event.actions';
 import EventCard from '@/components/EventCard';
+import { cacheLife } from 'next/cache';
 
 const EventDetailsPage = async ({ params }: { params: Promise<{ slug: string }> }) => {
+    'use cache'
+    cacheLife('hours')
+
     const { slug } = await params;
     const request = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/events/${slug}`);
     if (!request.ok) return notFound();
 
     const data = await request.json();
     if (!data || !data.event) return notFound();
+    const event = data.event;
 
     const {
         description,
@@ -112,7 +117,7 @@ const EventDetailsPage = async ({ params }: { params: Promise<{ slug: string }> 
                             </p>
                         )}
 
-                        <BookEvent />
+                        <BookEvent eventId={event._id} slug={event.slug} />
                     </div>
                 </aside>
             </div>

@@ -1,24 +1,35 @@
 'use client'
 
-import React from 'react'
-import { useState } from 'react'
+import React, { useState } from 'react'
+import { createBooking } from '@/lib/actions/booking.actions';
+import posthog from 'posthog-js'
 
-const BookEvent = () => {
-
+const BookEvent = ({ eventId, slug }: { eventId: string; slug: string }) => {
     const [email, setEmail] = useState('');
     const [submitted, setSubmitted] = useState(false);
+    const [error, setError] = useState('');
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setTimeout(() => {
+
+        const res = await createBooking({ eventId, slug, email });
+
+        if (res.success) {
             setSubmitted(true);
-        }, 1000);
+            setError('');
+            posthog.capture('event_booked', { eventId, slug, email });
+        } else {
+            setError(res.error || "Booking failed");
+            posthog.captureException(res.error || "Booking failed");
+        }
     }
 
     return (
         <div id="book-event">
             {submitted ? (
-                <p className='text-sm'>Thank you for signing up!</p>
+                <p className='text-sm text-green-600'>
+                    ✅ Thank you for signing up!
+                </p>
             ) : (
                 <form onSubmit={handleSubmit}>
                     <div>
@@ -32,11 +43,20 @@ const BookEvent = () => {
                             required
                         />
                     </div>
-                    <button type="submit" className='button-submit'>Submit</button>
+
+                    <button type="submit" className='button-submit'>
+                        Submit
+                    </button>
+
+                    {error && (
+                        <p className="text-red-500 text-sm mt-2">
+                            ❌ {error}
+                        </p>
+                    )}
                 </form>
             )}
         </div>
     )
 }
 
-export default BookEvent
+export default BookEvent;
