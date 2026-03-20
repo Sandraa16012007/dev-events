@@ -37,8 +37,6 @@ export async function POST(req: NextRequest) {
 
         // 🔴 Get image file
         const file = formData.get("image") as File;
-        console.log("FILE:", file);
-        console.log("FILE SIZE:", file?.size);
 
         if (!file || typeof file === "string") {
             return NextResponse.json(
@@ -47,8 +45,26 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        // ❌ Remove raw file from event
-        delete event.image;
+        // Validate file type
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+        if (!allowedTypes.includes(file.type)) {
+            return NextResponse.json(
+                { message: "Invalid image type. Allowed: JPEG, PNG, WebP, GIF" },
+                { status: 400 }
+            );
+        }
+
+        // Validate file size (e.g., max 5MB)
+        const maxSize = 5 * 1024 * 1024;
+        if (file.size > maxSize) {
+            return NextResponse.json(
+                { message: "Image size must be less than 5MB" },
+                { status: 400 }
+            );
+        }        delete event.image;
+
+        let tags = JSON.parse(formData.get('tags') as string)
+        let agenda = JSON.parse(formData.get('agenda') as string)
 
         // ✅ Convert to buffer
         const arrayBuffer = await file.arrayBuffer();
@@ -71,7 +87,7 @@ export async function POST(req: NextRequest) {
         event.image = uploadResult.secure_url;
 
         // ✅ Save to DB
-        const createdEvent = await Event.create(event);
+        const createdEvent = await Event.create({ ...event, tags: tags, agenda: agenda});
 
         return NextResponse.json(
             {
