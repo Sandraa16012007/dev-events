@@ -98,15 +98,15 @@ export async function POST(req: NextRequest) {
         );
 
     } catch (e: any) {
-        console.error("FULL ERROR:", e);
+        console.error("Event creation failed:", e);
 
         return NextResponse.json(
             {
                 message: "Event Creation Failed",
-                error: e?.message || JSON.stringify(e),
             },
             { status: 500 }
         );
+    }
     }
 }
 
